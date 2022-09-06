@@ -14,6 +14,8 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<IMovieRepo, MovieRepo>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

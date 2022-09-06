@@ -15,13 +15,13 @@ namespace MinimalAPI_2.Endpoints
                 return Results.Ok(items);
             });
 
-            app.MapPost("api/filmnoir", async (AppDbContext context, Movie movie) =>
+            app.MapPost("api/filmnoir", async (IMovieRepo repo, Movie movie) =>
             {
-                await context.Movies.AddAsync(movie);
+                await repo.CreateMovie(movie);
+                await repo.SaveChanges();
 
-                await context.SaveChangesAsync();
 
-                return Results.Created($"api/todo/{movie.Id}", movie);
+                return Results.Created($"api/filmnoir/{movie.Id}", movie);
 
             });
 
