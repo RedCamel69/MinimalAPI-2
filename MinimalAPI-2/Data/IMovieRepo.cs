@@ -10,6 +10,8 @@ namespace MinimalAPI_2.Data
         Task<IEnumerable<Movie>> GetAllMovies();
         Task CreateMovie(Movie cmd);
 
+        void UpdateMovie(Movie cmd, int id);
+
         void DeleteMovie(Movie cmd);
     }
 }

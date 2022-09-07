@@ -1,4 +1,6 @@
-﻿using MinimalAPI_2.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using MinimalAPI_2.Models;
+
 
 namespace MinimalAPI_2.Data
 {
@@ -21,24 +23,46 @@ namespace MinimalAPI_2.Data
             await _context.AddAsync(movie);
         }
 
-        public void DeleteMovie(Movie cmd)
+        public void UpdateMovie(Movie movie, int id)
         {
-            throw new NotImplementedException();
+            var movieModel = _context.Movies.FirstOrDefaultAsync(t => t.Id == id).Result;
+
+            if (movieModel == null)
+            {
+                throw new ArgumentNullException(nameof(movie));
+            }
+
+            movieModel.Title = movie.Title;
+            movieModel.Synopsis = movie.Synopsis;
+            movieModel.Year = movie.Year;
+
+            _context.Movies.Update(movieModel);
         }
 
-        public Task<IEnumerable<Movie>> GetAllMovies()
+        public void DeleteMovie(Movie movie)
         {
-            throw new NotImplementedException();
+            if (movie == null)
+            {
+                throw new ArgumentNullException(nameof(movie));
+            }
+
+            _context.Movies.Remove(movie);
         }
 
-        public Task<Movie?> GetMovieById(int id)
+        public async Task<IEnumerable<Movie>> GetAllMovies()
         {
-            throw new NotImplementedException();
+            return await _context.Movies.ToListAsync();          
+        }
+
+        public async Task<Movie?> GetMovieById(int id)
+        {
+            return await _context.Movies.FirstOrDefaultAsync(c => c.Id == id);
         }
 
         public async Task SaveChanges()
         {
             await _context.SaveChangesAsync();
         }
+       
     }
 }

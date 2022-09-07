@@ -8,9 +8,9 @@ namespace MinimalAPI_2.Endpoints
     {
         public static void MapMovieEndpoints(this WebApplication app)
         {
-            app.MapGet("api/filmnoir", async (AppDbContext context) =>
+            app.MapGet("api/filmnoir", async (IMovieRepo repo) =>
             {
-                var items = await context.Movies.ToListAsync();
+                var items = await repo.GetAllMovies();
 
                 return Results.Ok(items);
             });
@@ -25,20 +25,11 @@ namespace MinimalAPI_2.Endpoints
 
             });
 
-            app.MapPut("api/filmnoir/{id}", async (AppDbContext context, int id, Movie movie) => {
+            app.MapPut("api/filmnoir/{id}", async (IMovieRepo repo, int id, Movie movie) => {
 
-                var movieModel = await context.Movies.FirstOrDefaultAsync(t => t.Id == id);
+                repo.UpdateMovie(movie, id);
 
-                if (movieModel == null)
-                {
-                    return Results.NotFound();
-                }
-
-                movieModel.Title= movie.Title;
-                movieModel.Synopsis = movie.Synopsis;
-                movieModel.Year= movie.Year;
-
-                await context.SaveChangesAsync();
+                await repo.SaveChanges();
 
                 return Results.NoContent();
 
