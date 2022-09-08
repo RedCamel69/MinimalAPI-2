@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MinimalAPI_2.Data;
 using MinimalAPI_2.Endpoints;
+using AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IMovieRepo, MovieRepo>();
+
+//builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
 
