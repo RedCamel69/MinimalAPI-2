@@ -16,21 +16,23 @@ namespace MinimalAPI_2.Endpoints
             {               
                 var items = await repo.GetAllMovies();
                 return Results.Ok(mapper.Map<IEnumerable<MovieReadDTO>>(items));
-            });
+            })
+                //fluent ext allows Swagger to discover schema of response body
+                .Produces<IEnumerable<MovieReadDTO>>();
 
             app.MapPost("api/filmnoir", async (IMovieRepo repo, MovieCreateDTO movieCreateDTO, IMapper mapper) =>
             {
-                
+
                 var movieModel = mapper.Map<Movie>(movieCreateDTO);
 
                 await repo.CreateMovie(movieModel);
                 await repo.SaveChanges();
+            
+                return Results.Created($"api/filmnoir/{movieModel.Id}", 
+                        mapper.Map<MovieReadDTO>(movieModel));
 
-                //var movieReadDto = mapper.Map<MovieReadDTO>(movieModel);
-
-                return Results.Created($"api/filmnoir/{movieModel.Id}", movieModel);
-
-            });
+            }).Produces<MovieReadDTO>(); ;
+               
 
             app.MapPut("api/filmnoir/{id}", async (IMovieRepo repo, int id, IMapper mapper, MovieUpdateDTO movieUpdateDTO) => {
 
@@ -42,8 +44,6 @@ namespace MinimalAPI_2.Endpoints
                 }
 
                 mapper.Map(movieUpdateDTO, movieModel);
-
-               // repo.UpdateMovie(movieModel, id);
 
                 await repo.SaveChanges();
 
