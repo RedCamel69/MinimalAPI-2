@@ -17,8 +17,9 @@ namespace MinimalAPI_2.Endpoints
                 var items = await repo.GetAllMovies();
                 return Results.Ok(mapper.Map<IEnumerable<MovieReadDTO>>(items));
             })
-                //fluent ext allows Swagger to discover schema of response body
-                .Produces<IEnumerable<MovieReadDTO>>();
+                .Produces<IEnumerable<MovieReadDTO>>()
+                .RequireAuthorization();
+            
 
             app.MapPost("api/filmnoir", async (IMovieRepo repo, MovieCreateDTO movieCreateDTO, IMapper mapper) =>
             {
