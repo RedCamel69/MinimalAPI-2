@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using MinimalAPI_2.Data;
 using MinimalAPI_2.DTOs;
 using MinimalAPI_2.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -21,10 +23,17 @@ namespace MinimalAPI_2.Endpoints
                 .RequireAuthorization();
             
 
-            app.MapPost("api/filmnoir", async (IMovieRepo repo, MovieCreateDTO movieCreateDTO, IMapper mapper) =>
-            {
-
+            app.MapPost("api/filmnoir", async (IMovieRepo repo, IValidator<Movie> validator , MovieCreateDTO movieCreateDTO, IMapper mapper) =>
+            {                
                 var movieModel = mapper.Map<Movie>(movieCreateDTO);
+
+                var validationResult = validator.Validate(movieModel);
+                if(!validationResult.IsValid)
+                {
+                    var errors = validationResult.Errors.Select(x => new {errors = x.ErrorMessage });
+                    return Results.BadRequest(errors);
+                }
+
 
                 await repo.CreateMovie(movieModel);
                 await repo.SaveChanges();

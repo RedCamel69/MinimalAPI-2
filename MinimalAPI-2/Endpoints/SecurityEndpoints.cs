@@ -21,7 +21,7 @@ namespace MinimalAPI_2.Endpoints
  (User user) =>
 {
 
-    if (user.UserName == "user1" && user.Password == "password1")
+    if (user.UserName == "testuser" && user.Password == "testpassword")
     {
         var issuer = app.Configuration["Jwt:Issuer"];
         var audience = app.Configuration["Jwt:Audience"];

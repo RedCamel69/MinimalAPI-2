@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using FluentValidation.AspNetCore;
+using MinimalAPI_2.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,27 +30,29 @@ var securityScheme = new OpenApiSecurityScheme()
 };
 
 var securityReq = new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
                 {
-                    {
-                     new OpenApiSecurityScheme
-                     {
-                     Reference = new OpenApiReference
-                     {
-                     Type = ReferenceType.SecurityScheme,
-                     Id = "Bearer"
-                     }
-                     },
-                     new string[] {}
-                    }
-                };
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    };
 
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(o =>
-{   
+{
     o.AddSecurityDefinition("Bearer", securityScheme);
     o.AddSecurityRequirement(securityReq);
 });
+
+builder.Services.AddFluentValidation(fv=>fv.RegisterValidatorsFromAssemblyContaining<Movie>());
 
 builder.Services.AddScoped<IMovieRepo, MovieRepo>();
 
@@ -58,24 +62,20 @@ builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.AddAuthentication(o =>
 {
-    o.DefaultAuthenticateScheme = JwtBearerDefaults.
-AuthenticationScheme;
-    o.DefaultChallengeScheme = JwtBearerDefaults.
-AuthenticationScheme;
-    o.DefaultScheme = JwtBearerDefaults.
-AuthenticationScheme;
+    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(o =>
-{
-    o.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = false,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey
-(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = false,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });
 
